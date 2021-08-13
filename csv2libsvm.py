@@ -20,34 +20,39 @@ def construct_line( label, line ):
 	for i, item in enumerate( line ):
 		if item == '' or float( item ) == 0.0:
 			continue
-		new_item = "%s:%s" % ( i + 1, item )
+		new_item = "%s:%s" % ( i, item )
 		new_line.append( new_item )
 	new_line = " ".join( new_line )
 	new_line += "\n"
 	return new_line
 
-# ---
+def create_feature_map(features):
+	outfile = open('fmap.txt', 'w')
+	for idx, feat in enumerate(features):
+		outfile.write('{0}\t{1}\tq\n'.format(idx, feat))
+	outfile.close()
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 
 try:
-	label_index = int( sys.argv[3] )
+    label_index = int( sys.argv[3] )
 except IndexError:
-	label_index = 0
+    label_index = 0
 
 try:
 	skip_headers = sys.argv[4]
 except IndexError:
 	skip_headers = 0
 
-i = open( input_file, 'rb' )
-o = open( output_file, 'wb' )
+i = open( input_file, 'rt' )
+o = open( output_file, 'wt' )
 
 reader = csv.reader( i )
 
 if skip_headers:
-	headers = reader.next()
+	headers = next(reader)
+	create_feature_map(headers)
 
 for line in reader:
 	if label_index == -1:
@@ -58,3 +63,4 @@ for line in reader:
 	new_line = construct_line( label, line )
 	o.write( new_line )
 
+# python csv2libsvm.py data.csv out.libsvm 2 False
